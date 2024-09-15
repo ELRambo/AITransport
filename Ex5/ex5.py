@@ -260,28 +260,27 @@ vectorized_day_dataset_no_nans = vectorized_day_dataset[np.where(nans_per_day ==
 
 from sklearn.neighbors import NearestNeighbors
 dimension = len(vectorized_day_dataset_no_nans.shape)
-min_sample = dimension + 1
-k = min_sample - 1
+min_samples = dimension + 1
+k = min_samples - 1
 nbrs = NearestNeighbors(n_neighbors=k).fit(vectorized_day_dataset_no_nans)
 distances, indices = nbrs.kneighbors(vectorized_day_dataset_no_nans)
- 
-# Compute the average distance of the k-th nearest neighbor for each point
-avg_distances = distances.mean(axis=1)
 
-# Visualize the plot of k-nearest neighbors distance
-plt.plot(sorted(avg_distances))
+kth_distances = distances[:, k-1]
+
+# Sort the distances in ascending order
+sorted_kth_distances = sorted(kth_distances)
+
+# Plot the sorted k-th nearest neighbor distances
+plt.plot(sorted_kth_distances)
 plt.xlabel('Point')
-plt.ylabel(f'Average {k}-Nearest Neighbor Distance')
-plt.title(f'{k}-Nearest Neighbor Distance Plot')
+plt.ylabel(f'{k}-th Nearest Neighbor Distance')
+plt.title(f'{k}-Nearest Neighbor Distance Plot for DBSCAN')
 plt.show()
 
      
 # In[clustering - dbscan evaluation]
 
-# Optimal value for eps
-eps = 500
-
-dbscan = DBSCAN(eps=eps, min_samples=3)
+dbscan = DBSCAN(eps=500, min_samples=3)
 cluster_labels_db = dbscan.fit_predict(vectorized_day_dataset_no_nans)
 n_clusters_db = len(np.unique(cluster_labels_db)) - 1  # minus noise cluster
 
@@ -332,7 +331,7 @@ def custom_bouldin_scorer(estimator, X):
         return -1  # Return -1 if all data points are assigned to one cluster
 
 param_grid = {
-    'n_clusters': [2, 3, 4, 5, 6, 7],
+    'n_clusters': [2, 3, 4, 5, 6, 7, 8, 9],
     'metric': ['euclidean', 'manhattan', 'cosine'],
     'linkage': ['complete', 'average', 'single']
 }
