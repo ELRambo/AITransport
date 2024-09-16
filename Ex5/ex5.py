@@ -54,6 +54,14 @@ for i in range(0, ndays):
         # Extract the "Interval_5" and "flow" values and populate 'vectorized_day_dataset'
         vectorized_day_dataset[i, df_t.iloc[j]["Interval_5"]] = df_t.iloc[j]["flow"]
         
+# In[split dataset]
+
+# Split the first 5 days into 'train_data'
+train_data = vectorized_day_dataset[:5, :]
+
+# Split the last 2 days into 'test_data'
+test_data = vectorized_day_dataset[-2:, :]
+        
 # In[evaluation function]
 
 # Define a function to find the closest centroid to a new data point within a specified day-time interval range
@@ -73,48 +81,52 @@ def find_the_closest_centroid(centroids, new_day, from_interval: int, to_interva
 
     return closest_centroid
 
+
 def evaluation(cluster_labels, n_clusters_t):
-    # Read the evaluation dataset from a CSV file
-    data_eval_df = pd.read_csv("evaluation_dataset_exercise_5_clustering_highway_traffic.csv", sep=";")
+    # # Read the evaluation dataset from a CSV file
+    # data_eval_df = pd.read_csv("evaluation_dataset_exercise_5_clustering_highway_traffic.csv", sep=";")
     
-    # Sort the evaluation DataFrame by columns "Date" and "Interval_5"
-    data_eval_df.sort_values(["Date", "Interval_5"])
+    # # Sort the evaluation DataFrame by columns "Date" and "Interval_5"
+    # data_eval_df.sort_values(["Date", "Interval_5"])
     
-    # Extract unique dates from the sorted evaluation DataFrame
-    days_eval = np.unique(data_eval_df[['Date']].values.ravel())
-    # Calculate the total number of unique days in the evaluation dataset
-    ndays_eval = len(days_eval)
+    # # Extract unique dates from the sorted evaluation DataFrame
+    # days_eval = np.unique(data_eval_df[['Date']].values.ravel())
+    # # Calculate the total number of unique days in the evaluation dataset
+    # ndays_eval = len(days_eval)
     
-    # Group the evaluation DataFrame by the "Date" column
-    day_eval_subsets_df = data_eval_df.groupby(["Date"])
+    # # Group the evaluation DataFrame by the "Date" column
+    # day_eval_subsets_df = data_eval_df.groupby(["Date"])
     
-    # Initialize a matrix 'vectorized_day_dataset_eval' filled with NaN values
-    vectorized_day_dataset_eval = np.zeros((ndays_eval, nintvals))
-    vectorized_day_dataset_eval.fill(np.nan)
-    # This section initializes a 2D array to store the evaluation dataset and fills it with NaN values.
+    # # Initialize a matrix 'vectorized_day_dataset_eval' filled with NaN values
+    # vectorized_day_dataset_eval = np.zeros((ndays_eval, nintvals))
+    # vectorized_day_dataset_eval.fill(np.nan)
+    # # This section initializes a 2D array to store the evaluation dataset and fills it with NaN values.
     
-    # Loop through each unique day in the evaluation dataset
-    for i in range(0, ndays_eval):
-        # Get the DataFrame corresponding to the current day
-        df_t = day_eval_subsets_df.get_group(days_eval[i])
+    # # Loop through each unique day in the evaluation dataset
+    # for i in range(0, ndays_eval):
+    #     # Get the DataFrame corresponding to the current day
+    #     df_t = day_eval_subsets_df.get_group(days_eval[i])
     
-        # Loop through each row in the current day's DataFrame
-        for j in range(len(df_t)):
-            # Get the current day's DataFrame (this line is redundant)
-            df_t = day_eval_subsets_df.get_group(days_eval[i])
+    #     # Loop through each row in the current day's DataFrame
+    #     for j in range(len(df_t)):
+    #         # Get the current day's DataFrame (this line is redundant)
+    #         df_t = day_eval_subsets_df.get_group(days_eval[i])
     
-            # Extract the "Interval_5" and "flow" values and populate 'vectorized_day_dataset_eval'
-            vectorized_day_dataset_eval[i, df_t.iloc[j]["Interval_5"]] = df_t.iloc[j]["flow"]
+    #         # Extract the "Interval_5" and "flow" values and populate 'vectorized_day_dataset_eval'
+    #         vectorized_day_dataset_eval[i, df_t.iloc[j]["Interval_5"]] = df_t.iloc[j]["flow"]
+    
+    vectorized_day_dataset_eval = test_data
     
     # Calculate the number of days with missing values
     nans_per_day_eval = np.sum(np.isnan(vectorized_day_dataset_eval), 1)
     
     # Filter out days with no missing values and create a new dataset
     vectorized_day_dataset_no_nans_eval = vectorized_day_dataset_eval[np.where(nans_per_day_eval == 0)[0], :]
-    days_not_nans_eval = days_eval[np.where(nans_per_day_eval == 0)[0]]
+    # days_not_nans_eval = days_eval[np.where(nans_per_day_eval == 0)[0]]
+    ndays_eval_not_nans = len(np.where(nans_per_day_eval == 0)[0])
     
     # Calculate the total number of days in the filtered evaluation dataset
-    ndays_eval_not_nans = len(days_not_nans_eval)
+    # ndays_eval_not_nans = len(days_not_nans_eval)
     
     # Initialize a list to store centroid data
     centroids = []
@@ -155,54 +167,13 @@ def evaluation(cluster_labels, n_clusters_t):
     print('Prediction accuracy MAE:', total_mae / prediction_counts)
     print('Prediction accuracy MAPE:', total_mape / prediction_counts)
 
-    # Read the evaluation dataset from a CSV file
-    data_eval_df = pd.read_csv("evaluation_dataset_exercise_5_clustering_highway_traffic.csv", sep=";")
-    
-    # Sort the evaluation DataFrame by columns "Date" and "Interval_5"
-    data_eval_df.sort_values(["Date", "Interval_5"])
-    
-    # Extract unique dates from the sorted evaluation DataFrame
-    days_eval = np.unique(data_eval_df[['Date']].values.ravel())
-    # Calculate the total number of unique days in the evaluation dataset
-    ndays_eval = len(days_eval)
-    
-    # Group the evaluation DataFrame by the "Date" column
-    day_eval_subsets_df = data_eval_df.groupby(["Date"])
-    
-    # Initialize a matrix 'vectorized_day_dataset_eval' filled with NaN values
-    vectorized_day_dataset_eval = np.zeros((ndays_eval, nintvals))
-    vectorized_day_dataset_eval.fill(np.nan)
-    # This section initializes a 2D array to store the evaluation dataset and fills it with NaN values.
-    
-    # Loop through each unique day in the evaluation dataset
-    for i in range(0, ndays_eval):
-        # Get the DataFrame corresponding to the current day
-        df_t = day_eval_subsets_df.get_group(days_eval[i])
-    
-        # Loop through each row in the current day's DataFrame
-        for j in range(len(df_t)):
-            # Get the current day's DataFrame (this line is redundant)
-            df_t = day_eval_subsets_df.get_group(days_eval[i])
-    
-            # Extract the "Interval_5" and "flow" values and populate 'vectorized_day_dataset_eval'
-            vectorized_day_dataset_eval[i, df_t.iloc[j]["Interval_5"]] = df_t.iloc[j]["flow"]
-    
-    # Calculate the number of days with missing values
-    nans_per_day_eval = np.sum(np.isnan(vectorized_day_dataset_eval), 1)
-    
-    # Filter out days with no missing values and create a new dataset
-    vectorized_day_dataset_no_nans_eval = vectorized_day_dataset_eval[np.where(nans_per_day_eval == 0)[0], :]
-    days_not_nans_eval = days_eval[np.where(nans_per_day_eval == 0)[0]]
-    
-    # Calculate the total number of days in the filtered evaluation dataset
-
 # In[clustering - kmeans parameter test]
 
-nans_per_day = np.sum(np.isnan(vectorized_day_dataset),1)
-vectorized_day_dataset_no_nans = vectorized_day_dataset[np.where(nans_per_day == 0)[0],:]
+nans_per_day = np.sum(np.isnan(train_data),1)
+vectorized_day_dataset_no_nans = train_data[np.where(nans_per_day == 0)[0],:]
 
 inertia_values = []
-k_range = range(1, 50)
+k_range = range(1, 6)
 
 for k in k_range:
     
@@ -223,7 +194,7 @@ plt.show()
 
 # In[clustering - kmeans evaluation]
 
-k = 7
+k = 3
 clusters = KMeans(n_clusters=k, 
                   random_state=0, 
                   n_init="auto").fit(vectorized_day_dataset_no_nans)
